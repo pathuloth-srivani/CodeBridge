@@ -1,0 +1,695 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understand the Problem - Code Bridge</title>
+    <link rel="stylesheet" href="understanding.css">
+</head>
+
+<body>
+
+<header>
+    <h1>Code Bridge</h1>
+    <p>Understand the problem before writing code</p>
+</header>
+
+<main class="container">
+
+    <div id="dataStatus" class="explanation" hidden></div>
+
+    <!-- PROGRESS -->
+    <div class="progress-area">
+        <p id="stepText">Step 1 of 4</p>
+        <div class="progress-bar">
+            <div id="progressFill"></div>
+        </div>
+    </div>
+
+    <!-- SELECTED QUESTION -->
+    <h2 id="questionTitle"></h2>
+    <p id="questionDescription"></p>
+
+    <!-- EXAMPLE -->
+    <section class="example-box">
+        <h3>Example</h3>
+
+        <p><b>Input:</b></p>
+        <pre id="problemInput"></pre>
+
+        <p><b>Expected Output:</b></p>
+        <pre id="problemOutput"></pre>
+    </section>
+
+
+    <!-- =====================================
+         STEP 1 - UNDERSTAND QUESTION
+    ====================================== -->
+
+    <section class="step-box" id="questionStep">
+
+        <div class="step-number step-one-number">01</div>
+
+        <h2>Step 1: Understand the Question</h2>
+
+        <p>Do you understand what the question is asking?</p>
+
+        <button onclick="questionAnswer('yes')">
+            Yes
+        </button>
+
+        <button class="no-button" onclick="questionAnswer('no')">
+            No
+        </button>
+
+        <div id="questionExplanation"
+             class="explanation"
+             hidden>
+        </div>
+
+        <button id="questionNextButton"
+                onclick="goToLogicStep()"
+                hidden>
+            Next
+        </button>
+
+    </section>
+
+
+    <!-- =====================================
+         STEP 2 - UNDERSTAND LOGIC
+    ====================================== -->
+
+    <section class="step-box" id="logicStep" hidden>
+
+        <div class="step-number step-two-number">02</div>
+
+        <h2>Step 2: Understand the Logic</h2>
+
+        <p>Do you know the logic for solving this question?</p>
+
+        <button onclick="logicAnswer('yes')">
+            Yes
+        </button>
+
+        <button class="no-button" onclick="logicAnswer('no')">
+            No
+        </button>
+
+        <div id="logicExplanation"
+             class="explanation"
+             hidden>
+        </div>
+
+        <button id="logicNextButton"
+                onclick="startLogicQuiz()"
+                hidden>
+            Next: Test Your Logic
+        </button>
+
+    </section>
+
+
+    <!-- =====================================
+         STEP 3 - TEST YOUR LOGIC
+    ====================================== -->
+
+    <section class="step-box" id="quizStep" hidden>
+
+        <div class="step-number step-three-number">03</div>
+
+        <h2>Step 3: Test Your Logic</h2>
+
+        <p>
+            Answer these four questions to check your understanding
+            of the problem and its algorithm.
+        </p>
+
+        <div id="quizContainer">
+
+            <p class="quiz-placeholder">
+                Your logic questions will appear here.
+            </p>
+
+        </div>
+
+        <button id="submitQuizButton"
+                onclick="submitQuiz()"
+                disabled>
+            Submit Answers
+        </button>
+
+        <p id="quizMessage"></p>
+
+    </section>
+
+</main>
+
+
+<!-- LOAD SHARED QUESTION DATA FIRST -->
+<script src="question-data.js"></script>
+
+<script>
+
+/* ==========================================
+   1. GET SELECTED QUESTION
+========================================== */
+
+const title =
+    localStorage.getItem("selectedQuestion") ||
+    "Selected Question";
+
+const description =
+    localStorage.getItem("questionDescription") ||
+    localStorage.getItem("selectedQuestionDescription") ||
+    "Read the question carefully.";
+
+document.getElementById("questionTitle").textContent = title;
+
+document.getElementById("questionDescription").textContent =
+    description;
+
+
+/* ==========================================
+   2. FIND QUESTION DATA
+========================================== */
+
+function findCurrentQuestionData() {
+
+    if (typeof window.getQuestionData !== "function") {
+        return null;
+    }
+
+    let data = window.getQuestionData(title);
+
+    if (data) {
+        return data;
+    }
+
+    const t = title.toLowerCase();
+
+    if (
+        t.includes("second largest") ||
+        t.includes("second-largest") ||
+        t.includes("second maximum")
+    ) {
+        return window.getQuestionData("find second largest");
+    }
+
+    if (t.includes("largest")) {
+        return window.getQuestionData("find largest element");
+    }
+
+    if (t.includes("smallest")) {
+        return window.getQuestionData("find smallest element");
+    }
+
+    if (t.includes("reverse") && t.includes("array")) {
+        return window.getQuestionData("reverse an array");
+    }
+
+    if (t.includes("reverse") && t.includes("string")) {
+
+        const selectedTopic =
+            (localStorage.getItem("selectedTopic") || "").toLowerCase();
+
+        if (selectedTopic.includes("recursion")) {
+            return window.getQuestionData("reverse a string using recursion");
+        }
+
+        return window.getQuestionData("reverse a string");
+    }
+
+    if (t.includes("palindrome")) {
+        return window.getQuestionData("check palindrome");
+    }
+
+    if (t.includes("vowel")) {
+        return window.getQuestionData("count vowels");
+    }
+
+    return null;
+}
+
+const problemData = findCurrentQuestionData();
+
+
+/* ==========================================
+   3. GET PAGE ELEMENTS
+========================================== */
+
+const dataStatus = document.getElementById("dataStatus");
+
+const questionStep = document.getElementById("questionStep");
+
+const logicStep = document.getElementById("logicStep");
+
+const quizStep = document.getElementById("quizStep");
+
+
+/* ==========================================
+   4. CHECK QUESTION DATA
+========================================== */
+
+function showMissingDataMessage() {
+
+    dataStatus.hidden = false;
+
+    dataStatus.innerHTML = `
+        <h3>Question Guidance Not Available Yet</h3>
+
+        <p>
+            The question "${title}" does not have its own
+            explanation, algorithm, and four logic questions
+            in question-data.js yet.
+        </p>
+
+        <p>
+            Please add the correct question data before allowing
+            this question to continue.
+        </p>
+    `;
+
+    questionStep.querySelectorAll("button").forEach(button => {
+        button.disabled = true;
+    });
+
+    logicStep.hidden = true;
+    quizStep.hidden = true;
+}
+
+
+if (!problemData) {
+
+    showMissingDataMessage();
+
+} else {
+
+    dataStatus.hidden = true;
+
+    document.getElementById("problemInput").textContent =
+        problemData.input || "No sample input available.";
+
+    document.getElementById("problemOutput").textContent =
+        problemData.output || "No expected output available.";
+}
+
+
+/* ==========================================
+   5. RESET QUIZ COMPLETION
+========================================== */
+
+localStorage.removeItem("logicQuizCompleted");
+
+
+/* ==========================================
+   6. PROGRESS BAR
+========================================== */
+
+function updateProgress(percent, step) {
+
+    document.getElementById("progressFill").style.width =
+        percent + "%";
+
+    document.getElementById("stepText").textContent = step;
+}
+
+
+/* ==========================================
+   7. STEP 1 - UNDERSTAND QUESTION
+========================================== */
+
+function questionAnswer(answer) {
+
+    if (!problemData) return;
+
+    const explanation =
+        document.getElementById("questionExplanation");
+
+    if (answer === "no") {
+
+        explanation.innerHTML = `
+            <h3>Understanding the Question</h3>
+            <p>${problemData.explanation || "No explanation available."}</p>
+        `;
+
+        explanation.hidden = false;
+
+    } else {
+
+        explanation.hidden = true;
+    }
+
+    document.getElementById("questionNextButton").hidden = false;
+
+    updateProgress(25, "Step 1 of 4");
+}
+
+
+/* ==========================================
+   8. MOVE FROM STEP 1 TO STEP 2
+========================================== */
+
+function goToLogicStep() {
+
+    if (!problemData) return;
+
+    // Hide Step 1.
+    questionStep.hidden = true;
+
+    // Display Step 2.
+    logicStep.hidden = false;
+
+    updateProgress(50, "Step 2 of 4");
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* ==========================================
+   9. STEP 2 - UNDERSTAND LOGIC
+========================================== */
+
+function logicAnswer(answer) {
+
+    if (!problemData) return;
+
+    const explanation =
+        document.getElementById("logicExplanation");
+
+    if (answer === "no") {
+
+        let algorithmHTML = "<h3>Algorithm</h3><ol>";
+
+        if (Array.isArray(problemData.algorithm)) {
+
+            problemData.algorithm.forEach(step => {
+                algorithmHTML += `<li>${step}</li>`;
+            });
+
+        } else {
+
+            algorithmHTML += "<li>Algorithm is not available.</li>";
+        }
+
+        algorithmHTML += "</ol>";
+
+        explanation.innerHTML = algorithmHTML;
+
+        explanation.hidden = false;
+
+    } else {
+
+        explanation.hidden = true;
+    }
+
+    document.getElementById("logicNextButton").hidden = false;
+
+    updateProgress(60, "Step 2 of 4");
+}
+
+
+/* ==========================================
+   10. MOVE FROM STEP 2 TO STEP 3
+========================================== */
+
+function startLogicQuiz() {
+
+    if (
+        !problemData ||
+        !Array.isArray(problemData.quiz) ||
+        problemData.quiz.length !== 4
+    ) {
+
+        alert("This question must have exactly four logic questions.");
+
+        return;
+    }
+
+    // Hide Step 2.
+    logicStep.hidden = true;
+
+    // Display Step 3.
+    quizStep.hidden = false;
+
+    updateProgress(75, "Step 3 of 4");
+
+    loadQuiz();
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+
+/* ==========================================
+   11. STEP 3 - LOGIC QUIZ
+========================================== */
+
+let quizQuestions = [];
+
+
+function shuffle(array) {
+
+    const shuffled = [...array];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+
+        [shuffled[i], shuffled[j]] =
+            [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+}
+
+
+/* ==========================================
+   12. LOAD QUIZ QUESTIONS
+========================================== */
+
+function loadQuiz() {
+
+    quizQuestions = shuffle(problemData.quiz);
+
+    const container =
+        document.getElementById("quizContainer");
+
+    container.innerHTML = "";
+
+    quizQuestions.forEach((q, index) => {
+
+        const shuffledOptions = shuffle(
+            q.options.map((option, originalIndex) => ({
+                text: option,
+                correct: originalIndex === q.answer
+            }))
+        );
+
+        q.shuffledOptions = shuffledOptions;
+
+        let html = `
+            <div class="quiz-question">
+
+                <h3>Question ${index + 1}: ${q.question}</h3>
+        `;
+
+        shuffledOptions.forEach((option, optionIndex) => {
+
+            html += `
+                <label class="option">
+
+                    <input
+                        type="radio"
+                        name="question${index}"
+                        value="${optionIndex}"
+                    >
+
+                    ${option.text}
+
+                </label>
+            `;
+        });
+
+        html += `
+                <div
+                    class="answer-feedback"
+                    id="feedback${index}">
+                </div>
+
+            </div>
+        `;
+
+        container.innerHTML += html;
+    });
+
+    document.getElementById("quizMessage").textContent = "";
+
+    document.getElementById("submitQuizButton").disabled = false;
+}
+
+
+/* ==========================================
+   13. PREPARE CODING DATA
+========================================== */
+
+function prepareCodingData() {
+
+    if (!problemData) return;
+
+    localStorage.setItem("selectedQuestion", title);
+
+    localStorage.setItem("questionDescription", description);
+
+    localStorage.setItem(
+        "sampleInput",
+        problemData.input || ""
+    );
+
+    localStorage.setItem(
+        "expectedOutput",
+        problemData.output || ""
+    );
+
+    const tests = Array.isArray(problemData.tests)
+        ? problemData.tests
+        : [];
+
+    localStorage.setItem(
+        "questionTestCases",
+        JSON.stringify(
+            tests.map(test => ({
+                input: test.input,
+                expectedOutput: test.expectedOutput
+            }))
+        )
+    );
+
+    localStorage.setItem(
+        "hasExecutionTests",
+        tests.length > 0 ? "true" : "false"
+    );
+
+    localStorage.setItem(
+        "questionConcept",
+        problemData.concept || ""
+    );
+
+    localStorage.setItem(
+        "questionGuidance",
+        problemData.guidance || ""
+    );
+
+    localStorage.setItem("logicQuizCompleted", "true");
+}
+
+
+/* ==========================================
+   14. SUBMIT QUIZ
+========================================== */
+
+function submitQuiz() {
+
+    let allCorrect = true;
+
+    let allAnswered = true;
+
+    quizQuestions.forEach((q, index) => {
+
+        const selected = document.querySelector(
+            `input[name="question${index}"]:checked`
+        );
+
+        const feedback =
+            document.getElementById("feedback" + index);
+
+        if (!selected) {
+
+            allAnswered = false;
+            allCorrect = false;
+
+            feedback.innerHTML =
+                "<p>Please select an answer.</p>";
+
+            return;
+        }
+
+        const selectedOption =
+            q.shuffledOptions[Number(selected.value)];
+
+        if (selectedOption.correct) {
+
+            feedback.innerHTML = `
+                <p class="correct">Correct answer!</p>
+                <p>${q.explanation || ""}</p>
+            `;
+
+        } else {
+
+            allCorrect = false;
+
+            const correctOption =
+                q.shuffledOptions.find(option => option.correct);
+
+            feedback.innerHTML = `
+                <p class="wrong">Incorrect answer.</p>
+
+                <p>
+                    <b>Correct answer:</b>
+                    ${correctOption.text}
+                </p>
+
+                <p>
+                    <b>Explanation:</b>
+                    ${q.explanation || "Review the logic and try again."}
+                </p>
+
+                <p>Please select the correct answer and submit again.</p>
+            `;
+        }
+    });
+
+
+    const message =
+        document.getElementById("quizMessage");
+
+
+    if (!allAnswered) {
+
+        message.textContent =
+            "Answer all four questions before continuing.";
+
+        return;
+    }
+
+
+    if (allCorrect) {
+
+        prepareCodingData();
+
+        updateProgress(100, "Step 4 of 4");
+
+        document.getElementById("submitQuizButton").disabled = true;
+
+        // Automatically open coding page.
+        window.location.href = "coding.html";
+
+    } else {
+
+        message.textContent =
+            "Some answers are incorrect. Read the explanations, correct your answers, and submit again.";
+
+        localStorage.removeItem("logicQuizCompleted");
+    }
+}
+
+</script>
+
+</body>
+</html>
