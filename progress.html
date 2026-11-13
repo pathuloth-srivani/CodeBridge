@@ -1,0 +1,75 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Bridge - My Progress</title>
+    <link rel="stylesheet" href="progress.css">
+</head>
+<body>
+
+    <header>
+        <h1>Code Bridge</h1>
+        <button onclick="window.location.href='dashboard.html'">
+            Back to Dashboard
+        </button>
+    </header>
+
+    <main class="progress-container">
+
+        <h2>My Learning Progress</h2>
+        <p>Track your coding practice and improvement.</p>
+
+        <section class="summary">
+            <div class="card">
+                <h3>Completion</h3>
+                <p id="completion">0%</p>
+                <div class="progress-bar">
+                    <div id="completionBar"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Learning Performance</h3>
+                <p id="performance">0%</p>
+                <div class="progress-bar">
+                    <div id="performanceBar"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="details">
+            <h3>Performance Details</h3>
+
+            <p>Logic Understanding</p>
+            <div class="progress-bar">
+                <div id="logicBar"></div>
+            </div>
+            <span id="logicScore">0%</span>
+
+            <p>Coding Accuracy</p>
+            <div class="progress-bar">
+                <div id="codingBar"></div>
+            </div>
+            <span id="codingScore">0%</span>
+
+            <p>Independent Problem Solving</p>
+            <div class="progress-bar">
+                <div id="independenceBar"></div>
+            </div>
+            <span id="independenceScore">0%</span>
+        </section>
+
+        <section class="details">
+            <h3>Learning Summary</h3>
+            <p id="completedQuestions">Completed Questions: 0</p>
+            <p id="totalQuestions">Total Questions: 0</p>
+        </section>
+
+    </main>
+
+    <script src="progress.js"></script>
+</body>
+</html>
+```
