@@ -1,0 +1,1417 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Bridge - Questions</title>
+    <link rel="stylesheet" href="questions.css">
+
+    <style>
+        #startButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <h2>Code Bridge</h2>
+    <a href="dashboard.html">Dashboard</a>
+</nav>
+
+<main class="question-container">
+
+    <h1 id="topicTitle">Topic Practice</h1>
+
+    <div class="progress-info">
+        <span id="questionCount">Question 1 of 5</span>
+        <span id="progressPercent">0% Completed</span>
+    </div>
+
+    <div class="progress-bar">
+        <div id="progressFill"></div>
+    </div>
+
+    <div class="question-card">
+
+        <span id="difficulty">Easy</span>
+
+        <h2 id="questionTitle">Question title</h2>
+
+        <p id="questionDescription">
+            Question description
+        </p>
+
+        <!-- Test cases are intentionally not displayed here. -->
+
+        <button id="startButton" onclick="startQuestion()">
+            Start Question
+        </button>
+
+        <p id="completionMessage"></p>
+
+    </div>
+
+    <button class="back-button" onclick="goBack()">
+        Back to Topics
+    </button>
+
+</main>
+
+<script>
+
+// ==================================================
+// 1. GET SELECTED DETAILS
+// ==================================================
+
+const learning = localStorage.getItem("learning");
+const language = localStorage.getItem("language");
+const topic = localStorage.getItem("selectedTopic");
+
+
+// ==================================================
+// 2. QUESTION BANK
+// ==================================================
+
+const questionBank = {
+
+    "DSA": {
+
+        "Arrays": [
+            ["Find the largest element", "Find the largest number in a given array.", "Easy"],
+            ["Find the smallest element", "Find the smallest number in an array.", "Easy"],
+            ["Reverse an array", "Reverse the elements of an array.", "Easy"],
+            ["Find the second largest", "Find the second largest distinct element.", "Medium"],
+            ["Move zeros to the end", "Move all zeros to the end of the array.", "Medium"]
+        ],
+
+        "Strings": [
+            ["Reverse a string", "Reverse the given string.", "Easy"],
+            ["Check palindrome", "Check whether a string reads the same forward and backward.", "Easy"],
+            ["Count vowels", "Count the vowels present in a string.", "Easy"],
+            ["Find duplicate characters", "Find characters that occur more than once.", "Medium"],
+            ["Check anagram", "Check whether two strings contain the same characters.", "Medium"]
+        ],
+
+        "Linked Lists": [
+            ["Create a linked list", "Create a singly linked list and display its elements.", "Easy"],
+            ["Find the middle node", "Find the middle node of a linked list.", "Easy"],
+            ["Reverse a linked list", "Reverse a singly linked list.", "Medium"],
+            ["Detect a loop", "Check whether a linked list contains a cycle.", "Medium"],
+            ["Check palindrome linked list", "Determine whether a linked list is a palindrome.", "Medium"]
+        ],
+
+        "Stacks": [
+            ["Implement a stack", "Implement push and pop operations using an array.", "Easy"],
+            ["Reverse a string using stack", "Use a stack to reverse a string.", "Easy"],
+            ["Check balanced parentheses", "Check whether brackets are balanced.", "Medium"],
+            ["Next greater element", "Find the next greater element for each array element.", "Medium"],
+            ["Implement two stacks", "Implement two stacks using a single array.", "Hard"]
+        ],
+
+        "Queues": [
+            ["Implement a queue", "Implement enqueue and dequeue operations.", "Easy"],
+            ["Implement circular queue", "Create a circular queue using an array.", "Medium"],
+            ["Reverse a queue", "Reverse the elements of a queue.", "Easy"],
+            ["Generate binary numbers", "Generate binary numbers from 1 to N using a queue.", "Medium"],
+            ["Implement deque", "Implement a double-ended queue.", "Medium"]
+        ],
+
+        "Trees": [
+            ["Create a binary tree", "Create a binary tree and display its nodes.", "Easy"],
+            ["Inorder traversal", "Perform inorder traversal of a binary tree.", "Easy"],
+            ["Preorder traversal", "Perform preorder traversal of a binary tree.", "Easy"],
+            ["Find tree height", "Find the height of a binary tree.", "Medium"],
+            ["Count leaf nodes", "Count the leaf nodes of a binary tree.", "Medium"]
+        ],
+
+        "Graphs": [
+            ["Represent a graph", "Represent a graph using an adjacency matrix.", "Easy"],
+            ["Implement BFS", "Perform Breadth First Search traversal.", "Medium"],
+            ["Implement DFS", "Perform Depth First Search traversal.", "Medium"],
+            ["Detect a cycle", "Check whether an undirected graph contains a cycle.", "Medium"],
+            ["Find shortest path", "Find the shortest path in an unweighted graph.", "Hard"]
+        ],
+
+        "Searching": [
+            ["Linear search", "Find an element using linear search.", "Easy"],
+            ["Binary search", "Find an element in a sorted array using binary search.", "Easy"],
+            ["First occurrence", "Find the first occurrence of a target element.", "Medium"],
+            ["Last occurrence", "Find the last occurrence of a target element.", "Medium"],
+            ["Search in rotated array", "Search for a target in a rotated sorted array.", "Hard"]
+        ],
+
+        "Sorting": [
+            ["Bubble sort", "Sort an array using bubble sort.", "Easy"],
+            ["Selection sort", "Sort an array using selection sort.", "Easy"],
+            ["Insertion sort", "Implement insertion sort.", "Easy"],
+            ["Merge sort", "Sort an array using merge sort.", "Medium"],
+            ["Quick sort", "Implement quick sort.", "Medium"]
+        ],
+
+        "Recursion": [
+            ["Factorial", "Find the factorial of a number using recursion.", "Easy"],
+            ["Fibonacci series", "Generate Fibonacci numbers using recursion.", "Easy"],
+            ["Sum of digits", "Find the sum of digits using recursion.", "Easy"],
+            ["Reverse a string", "Reverse a string using recursion.", "Medium"],
+            ["Tower of Hanoi", "Solve the Tower of Hanoi problem using recursion.", "Hard"]
+        ],
+
+        "Hashing": [
+            ["Frequency of elements", "Count the frequency of each element using hashing.", "Easy"],
+            ["Find duplicates", "Find duplicate elements using a hash set.", "Easy"],
+            ["Two sum", "Find two numbers whose sum equals a target.", "Easy"],
+            ["First non-repeating character", "Find the first character that appears only once.", "Medium"],
+            ["Group anagrams", "Group words that are anagrams of each other.", "Medium"]
+        ]
+    },
+
+    "Java": {
+
+        "Variables": [
+            ["Declare variables", "Declare variables of different data types in Java.", "Easy"],
+            ["Swap two numbers", "Swap two numbers using a temporary variable.", "Easy"],
+            ["Swap without temporary variable", "Swap two numbers without using a third variable.", "Medium"],
+            ["Calculate simple interest", "Calculate simple interest using variables.", "Easy"],
+            ["Student details", "Store and display student details using variables.", "Easy"]
+        ],
+
+        "Data Types": [
+            ["Integer and decimal values", "Declare and display integer and decimal values.", "Easy"],
+            ["Character and boolean", "Use char and boolean data types in Java.", "Easy"],
+            ["Type conversion", "Convert an integer into a double.", "Easy"],
+            ["Type casting", "Demonstrate explicit type casting.", "Medium"],
+            ["Calculate data ranges", "Explore the minimum and maximum values of numeric types.", "Medium"]
+        ],
+
+        "Operators": [
+            ["Arithmetic operations", "Perform addition, subtraction, multiplication and division.", "Easy"],
+            ["Even or odd", "Use the modulus operator to check even or odd.", "Easy"],
+            ["Compare two numbers", "Use relational operators to compare two numbers.", "Easy"],
+            ["Logical operators", "Demonstrate AND, OR and NOT operators.", "Medium"],
+            ["Increment and decrement", "Demonstrate pre-increment and post-increment.", "Medium"]
+        ],
+
+        "Conditional Statements": [
+            ["Even or odd", "Check whether a number is even or odd using if-else.", "Easy"],
+            ["Largest of three numbers", "Find the largest among three numbers.", "Easy"],
+            ["Positive or negative", "Check whether a number is positive, negative or zero.", "Easy"],
+            ["Grade calculator", "Display grades based on marks.", "Medium"],
+            ["Calculator using switch", "Create a calculator using switch statements.", "Medium"]
+        ],
+
+        "Loops": [
+            ["Print numbers", "Print numbers from 1 to N using a loop.", "Easy"],
+            ["Multiplication table", "Print the multiplication table of a number.", "Easy"],
+            ["Sum of natural numbers", "Calculate the sum of the first N natural numbers.", "Easy"],
+            ["Reverse a number", "Reverse the digits of a given number.", "Medium"],
+            ["Check prime number", "Check whether a number is prime using a loop.", "Medium"]
+        ],
+
+        "Arrays": [
+            ["Find largest element", "Find the largest element in an array.", "Easy"],
+            ["Calculate array sum", "Calculate the sum of array elements.", "Easy"],
+            ["Reverse array", "Reverse the elements of an array.", "Easy"],
+            ["Find duplicate elements", "Find duplicate values in an array.", "Medium"],
+            ["Sort array", "Sort an array in ascending order.", "Medium"]
+        ],
+
+        "Strings": [
+            ["Reverse string", "Reverse a given string in Java.", "Easy"],
+            ["Palindrome string", "Check whether a string is a palindrome.", "Easy"],
+            ["Count characters", "Count the number of characters in a string.", "Easy"],
+            ["Compare strings", "Compare two strings using appropriate methods.", "Medium"],
+            ["Remove spaces", "Remove all spaces from a string.", "Medium"]
+        ],
+
+        "Methods": [
+            ["Create a method", "Create a method that adds two numbers.", "Easy"],
+            ["Method with parameters", "Create a method that accepts two parameters.", "Easy"],
+            ["Method with return value", "Create a method that returns the square of a number.", "Easy"],
+            ["Method overloading", "Demonstrate method overloading in Java.", "Medium"],
+            ["Recursive method", "Create a recursive method to calculate factorial.", "Medium"]
+        ],
+
+        "OOP / Classes and Objects": [
+            ["Create a class", "Create a Student class with properties and methods.", "Easy"],
+            ["Create objects", "Create multiple objects of a class.", "Easy"],
+            ["Use constructors", "Create a class with a parameterized constructor.", "Medium"],
+            ["Encapsulation", "Demonstrate encapsulation using private variables and getters.", "Medium"],
+            ["Bank account", "Create a BankAccount class with deposit and withdrawal methods.", "Medium"]
+        ],
+
+        "Inheritance": [
+            ["Single inheritance", "Create a child class that inherits from a parent class.", "Easy"],
+            ["Multilevel inheritance", "Demonstrate multilevel inheritance.", "Medium"],
+            ["Hierarchical inheritance", "Create multiple child classes from one parent class.", "Medium"],
+            ["Use super keyword", "Use super to access parent class members.", "Medium"],
+            ["Constructor in inheritance", "Demonstrate constructor execution in inheritance.", "Hard"]
+        ],
+
+        "Polymorphism": [
+            ["Method overloading", "Demonstrate compile-time polymorphism.", "Easy"],
+            ["Method overriding", "Demonstrate runtime polymorphism.", "Medium"],
+            ["Runtime polymorphism", "Use a parent reference to access a child object.", "Medium"],
+            ["Use dynamic method dispatch", "Demonstrate dynamic method dispatch.", "Hard"],
+            ["Polymorphism example", "Create a program using different shapes and their area methods.", "Medium"]
+        ]
+    },
+
+    "Python": {
+
+        "Variables": [
+            ["Declare variables", "Declare variables and display their values in Python.", "Easy"],
+            ["Swap two numbers", "Swap two numbers using Python variables.", "Easy"],
+            ["Student details", "Store and display student details using variables.", "Easy"],
+            ["Calculate simple interest", "Calculate simple interest using variables.", "Easy"],
+            ["Multiple assignment", "Assign values to multiple variables in one statement.", "Medium"]
+        ],
+
+        "Data Types": [
+            ["Integer and float", "Create and display integer and floating-point values.", "Easy"],
+            ["String and boolean", "Use string and boolean data types.", "Easy"],
+            ["Type conversion", "Convert a string containing a number into an integer.", "Easy"],
+            ["Type checking", "Identify the data type using type().", "Easy"],
+            ["Type casting", "Convert values between different data types.", "Medium"]
+        ],
+
+        "Operators": [
+            ["Arithmetic operations", "Perform addition, subtraction, multiplication and division.", "Easy"],
+            ["Even or odd", "Check whether a number is even or odd using modulus.", "Easy"],
+            ["Compare two numbers", "Compare two numbers using relational operators.", "Easy"],
+            ["Logical operators", "Demonstrate and, or and not operators.", "Medium"],
+            ["Assignment operators", "Use different assignment operators in Python.", "Medium"]
+        ],
+
+        "Conditional Statements": [
+            ["Even or odd", "Check whether a number is even or odd using if-else.", "Easy"],
+            ["Largest of three numbers", "Find the largest among three numbers.", "Easy"],
+            ["Positive or negative", "Check whether a number is positive, negative or zero.", "Easy"],
+            ["Grade calculator", "Display grades based on marks.", "Medium"],
+            ["Simple calculator", "Create a calculator using conditional statements.", "Medium"]
+        ],
+
+        "Loops": [
+            ["Print numbers", "Print numbers from 1 to N using a loop.", "Easy"],
+            ["Multiplication table", "Print the multiplication table of a number.", "Easy"],
+            ["Sum of natural numbers", "Calculate the sum of the first N natural numbers.", "Easy"],
+            ["Reverse a number", "Reverse the digits of a given number.", "Medium"],
+            ["Check prime number", "Check whether a number is prime using a loop.", "Medium"]
+        ],
+
+        "Lists": [
+            ["Create a list", "Create a list and display its elements.", "Easy"],
+            ["Find largest element", "Find the largest element in a list.", "Easy"],
+            ["Reverse a list", "Reverse a list without using reverse().", "Easy"],
+            ["Remove duplicates", "Remove duplicate elements from a list.", "Medium"],
+            ["Sort a list", "Sort a list without using the built-in sort method.", "Medium"]
+        ],
+
+        "Tuples": [
+            ["Create a tuple", "Create a tuple and display its elements.", "Easy"],
+            ["Access tuple elements", "Access elements using positive and negative indexing.", "Easy"],
+            ["Count occurrences", "Count how many times an element occurs in a tuple.", "Easy"],
+            ["Find maximum", "Find the largest element in a tuple.", "Easy"],
+            ["Convert tuple to list", "Convert a tuple into a list and modify it.", "Medium"]
+        ],
+
+        "Sets": [
+            ["Create a set", "Create a set and display its elements.", "Easy"],
+            ["Remove duplicates", "Remove duplicates from a list using a set.", "Easy"],
+            ["Set union", "Find the union of two sets.", "Easy"],
+            ["Set intersection", "Find common elements in two sets.", "Easy"],
+            ["Set difference", "Find the difference between two sets.", "Medium"]
+        ],
+
+        "Dictionaries": [
+            ["Create dictionary", "Create a dictionary to store student details.", "Easy"],
+            ["Access values", "Access dictionary values using keys.", "Easy"],
+            ["Count word frequency", "Count how many times each word appears in a sentence.", "Medium"],
+            ["Merge dictionaries", "Merge two dictionaries into one.", "Medium"],
+            ["Find maximum value", "Find the key with the highest value in a dictionary.", "Medium"]
+        ],
+
+        "Functions": [
+            ["Create a function", "Create a function to add two numbers.", "Easy"],
+            ["Function with arguments", "Create a function that accepts arguments.", "Easy"],
+            ["Return statement", "Create a function that returns the square of a number.", "Easy"],
+            ["Default arguments", "Demonstrate default arguments in Python.", "Medium"],
+            ["Recursive function", "Write a recursive function to calculate factorial.", "Medium"]
+        ],
+
+        "OOP": [
+            ["Create a class", "Create a Student class with name and age.", "Easy"],
+            ["Create objects", "Create objects from a Python class.", "Easy"],
+            ["Use constructor", "Use __init__ to initialize object properties.", "Medium"],
+            ["Inheritance", "Create a child class that inherits from a parent class.", "Medium"],
+            ["Encapsulation", "Demonstrate encapsulation in Python.", "Medium"]
+        ]
+    },
+
+    "Other Concepts": {
+
+        "DBMS": [
+            ["What is DBMS?", "Explain DBMS and identify its main advantages.", "Easy"],
+            ["Database keys", "Identify primary keys and foreign keys in a given table.", "Easy"],
+            ["Normalization", "Explain why database normalization is required.", "Medium"],
+            ["ER diagram", "Design an ER diagram for a student management system.", "Medium"],
+            ["Transactions", "Explain ACID properties with an example.", "Medium"]
+        ],
+
+        "SQL": [
+            ["Create a table", "Write an SQL query to create a Student table.", "Easy"],
+            ["Insert records", "Insert five records into a Student table.", "Easy"],
+            ["Select records", "Display all students whose marks are above 80.", "Easy"],
+            ["Use joins", "Write a query to join Student and Department tables.", "Medium"],
+            ["Group records", "Use GROUP BY to count students in each department.", "Medium"]
+        ],
+
+        "Operating Systems": [
+            ["Process and thread", "Explain the difference between a process and a thread.", "Easy"],
+            ["CPU scheduling", "Calculate waiting time using FCFS scheduling.", "Medium"],
+            ["Deadlock", "Identify the four necessary conditions for deadlock.", "Medium"],
+            ["Memory management", "Explain paging with an example.", "Medium"],
+            ["Page replacement", "Solve a page replacement problem using FIFO.", "Hard"]
+        ],
+
+        "Computer Networks": [
+            ["Network types", "Differentiate LAN, MAN and WAN.", "Easy"],
+            ["OSI model", "Explain the seven layers of the OSI model.", "Easy"],
+            ["IP addressing", "Identify the network and host portions of an IP address.", "Medium"],
+            ["Network topologies", "Compare bus, star, ring and mesh topologies.", "Medium"],
+            ["Subnetting", "Calculate the number of usable hosts in a subnet.", "Hard"]
+        ],
+
+        "HTML": [
+            ["Create a webpage", "Create a basic webpage using HTML.", "Easy"],
+            ["HTML headings", "Create a webpage using different heading tags.", "Easy"],
+            ["Create a form", "Create a registration form using HTML.", "Easy"],
+            ["Create a table", "Display student details using an HTML table.", "Medium"],
+            ["Add images and links", "Create a webpage containing images and hyperlinks.", "Easy"]
+        ],
+
+        "CSS": [
+            ["Change text styles", "Style a heading using CSS properties.", "Easy"],
+            ["Create a navigation bar", "Design a horizontal navigation bar.", "Easy"],
+            ["CSS box model", "Demonstrate margin, padding and border.", "Medium"],
+            ["Create a card", "Design a responsive card using CSS.", "Medium"],
+            ["Flexbox layout", "Create a flexible layout using CSS Flexbox.", "Medium"]
+        ],
+
+        "JavaScript": [
+            ["Display a message", "Display a message using JavaScript.", "Easy"],
+            ["Handle button click", "Change webpage text when a button is clicked.", "Easy"],
+            ["Validate a form", "Validate a registration form using JavaScript.", "Medium"],
+            ["DOM manipulation", "Change HTML elements using the DOM.", "Medium"],
+            ["Create a calculator", "Create a simple calculator using JavaScript.", "Medium"]
+        ]
+    }
+
+};
+
+
+// ==================================================
+// 3. QUESTION EXAMPLE DATA
+// Test cases are saved but NOT displayed on this page.
+// ==================================================
+
+const exampleBank = {
+
+    "Arrays": {
+
+        "Find the largest element": {
+            input: "5\n10 25 8 40 15",
+            output: "40",
+            tests: [
+                { input: "5\n10 25 8 40 15", expectedOutput: "40" },
+                { input: "4\n-5 -2 -9 -1", expectedOutput: "-1" },
+                { input: "5\n7 7 3 1 9", expectedOutput: "9" }
+            ]
+        },
+
+        "Find the smallest element": {
+            input: "5\n10 25 8 40 15",
+            output: "8",
+            tests: [
+                { input: "5\n10 25 8 40 15", expectedOutput: "8" },
+                { input: "4\n-5 -2 -9 -1", expectedOutput: "-9" },
+                { input: "5\n7 7 3 1 9", expectedOutput: "1" }
+            ]
+        },
+
+        "Reverse an array": {
+            input: "5\n10 20 30 40 50",
+            output: "50 40 30 20 10",
+            tests: [
+                { input: "5\n10 20 30 40 50", expectedOutput: "50 40 30 20 10" },
+                { input: "4\n1 2 3 4", expectedOutput: "4 3 2 1" },
+                { input: "1\n99", expectedOutput: "99" }
+            ]
+        },
+
+        "Find the second largest": {
+            input: "5\n10 25 8 40 15",
+            output: "25",
+            tests: [
+                { input: "5\n10 25 8 40 15", expectedOutput: "25" },
+                { input: "4\n7 7 3 1", expectedOutput: "3" },
+                { input: "5\n-4 -1 -8 -2 -3", expectedOutput: "-2" }
+            ]
+        },
+
+        "Move zeros to the end": {
+            input: "5\n0 1 0 3 5",
+            output: "1 3 5 0 0",
+            tests: [
+                { input: "5\n0 1 0 3 5", expectedOutput: "1 3 5 0 0" },
+                { input: "4\n1 0 2 0", expectedOutput: "1 2 0 0" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" }
+            ]
+        },
+
+        "Calculate array sum": {
+            input: "5\n10 20 30 40 50",
+            output: "150",
+            tests: [
+                { input: "5\n10 20 30 40 50", expectedOutput: "150" },
+                { input: "3\n-1 2 3", expectedOutput: "4" },
+                { input: "4\n0 0 0 0", expectedOutput: "0" }
+            ]
+        },
+
+        "Sort array": {
+            input: "5\n5 2 8 1 3",
+            output: "1 2 3 5 8",
+            tests: [
+                { input: "5\n5 2 8 1 3", expectedOutput: "1 2 3 5 8" },
+                { input: "4\n9 7 5 3", expectedOutput: "3 5 7 9" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" }
+            ]
+        }
+    },
+
+    "Strings": {
+
+        "Reverse a string": {
+            input: "HELLO",
+            output: "OLLEH",
+            tests: [
+                { input: "HELLO", expectedOutput: "OLLEH" },
+                { input: "CODE", expectedOutput: "EDOC" },
+                { input: "A", expectedOutput: "A" }
+            ]
+        },
+
+        "Reverse string": {
+            input: "HELLO",
+            output: "OLLEH",
+            tests: [
+                { input: "HELLO", expectedOutput: "OLLEH" },
+                { input: "CODE", expectedOutput: "EDOC" },
+                { input: "A", expectedOutput: "A" }
+            ]
+        },
+
+        "Check palindrome": {
+            input: "MADAM",
+            output: "Palindrome",
+            tests: [
+                { input: "MADAM", expectedOutput: "Palindrome" },
+                { input: "HELLO", expectedOutput: "Not Palindrome" },
+                { input: "121", expectedOutput: "Palindrome" }
+            ]
+        },
+
+        "Palindrome string": {
+            input: "MADAM",
+            output: "Palindrome",
+            tests: [
+                { input: "MADAM", expectedOutput: "Palindrome" },
+                { input: "HELLO", expectedOutput: "Not Palindrome" },
+                { input: "121", expectedOutput: "Palindrome" }
+            ]
+        },
+
+        "Count vowels": {
+            input: "education",
+            output: "5",
+            tests: [
+                { input: "education", expectedOutput: "5" },
+                { input: "HELLO", expectedOutput: "2" },
+                { input: "rhythm", expectedOutput: "0" }
+            ]
+        },
+
+        "Remove spaces": {
+            input: "Code Bridge Project",
+            output: "CodeBridgeProject",
+            tests: [
+                { input: "Code Bridge Project", expectedOutput: "CodeBridgeProject" },
+                { input: "Hello World", expectedOutput: "HelloWorld" },
+                { input: "ABC", expectedOutput: "ABC" }
+            ]
+        }
+    },
+
+    "Searching": {
+
+        "Linear search": {
+            input: "5\n10 20 30 40 50\n30",
+            output: "2",
+            tests: [
+                { input: "5\n10 20 30 40 50\n30", expectedOutput: "2" },
+                { input: "4\n1 2 3 4\n5", expectedOutput: "-1" },
+                { input: "3\n7 8 9\n7", expectedOutput: "0" }
+            ]
+        },
+
+        "Binary search": {
+            input: "5\n10 20 30 40 50\n40",
+            output: "3",
+            tests: [
+                { input: "5\n10 20 30 40 50\n40", expectedOutput: "3" },
+                { input: "5\n10 20 30 40 50\n10", expectedOutput: "0" },
+                { input: "5\n10 20 30 40 50\n60", expectedOutput: "-1" }
+            ]
+        }
+    },
+
+    "Sorting": {
+
+        "Bubble sort": {
+            input: "5\n5 2 8 1 3",
+            output: "1 2 3 5 8",
+            tests: [
+                { input: "5\n5 2 8 1 3", expectedOutput: "1 2 3 5 8" },
+                { input: "4\n9 7 5 3", expectedOutput: "3 5 7 9" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" }
+            ]
+        },
+
+        "Selection sort": {
+            input: "5\n5 2 8 1 3",
+            output: "1 2 3 5 8",
+            tests: [
+                { input: "5\n5 2 8 1 3", expectedOutput: "1 2 3 5 8" },
+                { input: "4\n9 7 5 3", expectedOutput: "3 5 7 9" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" }
+            ]
+        },
+
+        "Insertion sort": {
+            input: "5\n5 2 8 1 3",
+            output: "1 2 3 5 8",
+            tests: [
+                { input: "5\n5 2 8 1 3", expectedOutput: "1 2 3 5 8" },
+                { input: "4\n9 7 5 3", expectedOutput: "3 5 7 9" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" }
+            ]
+        },
+
+        "Merge sort": {
+            input: "5\n5 2 8 1 3",
+            output: "1 2 3 5 8",
+            tests: [
+                { input: "5\n5 2 8 1 3", expectedOutput: "1 2 3 5 8" },
+                { input: "4\n9 7 5 3", expectedOutput: "3 5 7 9" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" }
+            ]
+        },
+
+        "Quick sort": {
+            input: "5\n5 2 8 1 3",
+            output: "1 2 3 5 8",
+            tests: [
+                { input: "5\n5 2 8 1 3", expectedOutput: "1 2 3 5 8" },
+                { input: "4\n9 7 5 3", expectedOutput: "3 5 7 9" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" }
+            ]
+        }
+    },
+
+    "Recursion": {
+
+        "Factorial": {
+            input: "5",
+            output: "120",
+            tests: [
+                { input: "5", expectedOutput: "120" },
+                { input: "0", expectedOutput: "1" },
+                { input: "4", expectedOutput: "24" }
+            ]
+        },
+
+        "Fibonacci series": {
+            input: "5",
+            output: "0 1 1 2 3",
+            tests: [
+                { input: "5", expectedOutput: "0 1 1 2 3" },
+                { input: "1", expectedOutput: "0" },
+                { input: "7", expectedOutput: "0 1 1 2 3 5 8" }
+            ]
+        },
+
+        "Sum of digits": {
+            input: "1234",
+            output: "10",
+            tests: [
+                { input: "1234", expectedOutput: "10" },
+                { input: "555", expectedOutput: "15" },
+                { input: "0", expectedOutput: "0" }
+            ]
+        }
+    },
+
+    "Loops": {
+
+        "Print numbers": {
+            input: "5",
+            output: "1 2 3 4 5",
+            tests: [
+                { input: "5", expectedOutput: "1 2 3 4 5" },
+                { input: "3", expectedOutput: "1 2 3" },
+                { input: "1", expectedOutput: "1" }
+            ]
+        },
+
+        "Multiplication table": {
+            input: "5",
+            output: "5 10 15 20 25 30 35 40 45 50",
+            tests: [
+                { input: "5", expectedOutput: "5 10 15 20 25 30 35 40 45 50" },
+                { input: "2", expectedOutput: "2 4 6 8 10 12 14 16 18 20" },
+                { input: "3", expectedOutput: "3 6 9 12 15 18 21 24 27 30" }
+            ]
+        },
+
+        "Sum of natural numbers": {
+            input: "5",
+            output: "15",
+            tests: [
+                { input: "5", expectedOutput: "15" },
+                { input: "10", expectedOutput: "55" },
+                { input: "1", expectedOutput: "1" }
+            ]
+        },
+
+        "Reverse a number": {
+            input: "1234",
+            output: "4321",
+            tests: [
+                { input: "1234", expectedOutput: "4321" },
+                { input: "100", expectedOutput: "1" },
+                { input: "7", expectedOutput: "7" }
+            ]
+        },
+
+        "Check prime number": {
+            input: "7",
+            output: "Prime",
+            tests: [
+                { input: "7", expectedOutput: "Prime" },
+                { input: "10", expectedOutput: "Not Prime" },
+                { input: "2", expectedOutput: "Prime" }
+            ]
+        }
+    },
+
+    "Conditional Statements": {
+
+        "Even or odd": {
+            input: "10",
+            output: "Even",
+            tests: [
+                { input: "10", expectedOutput: "Even" },
+                { input: "7", expectedOutput: "Odd" },
+                { input: "0", expectedOutput: "Even" }
+            ]
+        },
+
+        "Largest of three numbers": {
+            input: "10 25 15",
+            output: "25",
+            tests: [
+                { input: "10 25 15", expectedOutput: "25" },
+                { input: "5 3 9", expectedOutput: "9" },
+                { input: "-1 -5 -3", expectedOutput: "-1" }
+            ]
+        },
+
+        "Positive or negative": {
+            input: "-5",
+            output: "Negative",
+            tests: [
+                { input: "-5", expectedOutput: "Negative" },
+                { input: "8", expectedOutput: "Positive" },
+                { input: "0", expectedOutput: "Zero" }
+            ]
+        }
+    },
+
+    "Variables": {
+
+        "Swap two numbers": {
+            input: "10 20",
+            output: "20 10",
+            tests: [
+                { input: "10 20", expectedOutput: "20 10" },
+                { input: "5 8", expectedOutput: "8 5" },
+                { input: "-2 9", expectedOutput: "9 -2" }
+            ]
+        },
+
+        "Calculate simple interest": {
+            input: "1000 5 2",
+            output: "100",
+            tests: [
+                { input: "1000 5 2", expectedOutput: "100" },
+                { input: "2000 10 3", expectedOutput: "600" },
+                { input: "500 4 1", expectedOutput: "20" }
+            ]
+        }
+    },
+
+    "Methods": {
+
+        "Create a method": {
+            input: "10 20",
+            output: "30",
+            tests: [
+                { input: "10 20", expectedOutput: "30" },
+                { input: "5 5", expectedOutput: "10" },
+                { input: "-2 8", expectedOutput: "6" }
+            ]
+        },
+
+        "Method with return value": {
+            input: "5",
+            output: "25",
+            tests: [
+                { input: "5", expectedOutput: "25" },
+                { input: "3", expectedOutput: "9" },
+                { input: "0", expectedOutput: "0" }
+            ]
+        },
+
+        "Recursive method": {
+            input: "5",
+            output: "120",
+            tests: [
+                { input: "5", expectedOutput: "120" },
+                { input: "0", expectedOutput: "1" },
+                { input: "4", expectedOutput: "24" }
+            ]
+        }
+    },
+
+    "Lists": {
+
+        "Create a list": {
+            input: "5\n10 20 30 40 50",
+            output: "10 20 30 40 50",
+            tests: [
+                { input: "5\n10 20 30 40 50", expectedOutput: "10 20 30 40 50" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" },
+                { input: "1\n99", expectedOutput: "99" }
+            ]
+        },
+
+        "Find largest element": {
+            input: "5\n10 25 8 40 15",
+            output: "40",
+            tests: [
+                { input: "5\n10 25 8 40 15", expectedOutput: "40" },
+                { input: "4\n-5 -2 -9 -1", expectedOutput: "-1" },
+                { input: "3\n2 2 1", expectedOutput: "2" }
+            ]
+        },
+
+        "Reverse a list": {
+            input: "5\n10 20 30 40 50",
+            output: "50 40 30 20 10",
+            tests: [
+                { input: "5\n10 20 30 40 50", expectedOutput: "50 40 30 20 10" },
+                { input: "3\n1 2 3", expectedOutput: "3 2 1" },
+                { input: "1\n9", expectedOutput: "9" }
+            ]
+        },
+
+        "Sort a list": {
+            input: "5\n5 2 8 1 3",
+            output: "1 2 3 5 8",
+            tests: [
+                { input: "5\n5 2 8 1 3", expectedOutput: "1 2 3 5 8" },
+                { input: "4\n9 7 5 3", expectedOutput: "3 5 7 9" },
+                { input: "3\n1 2 3", expectedOutput: "1 2 3" }
+            ]
+        }
+    },
+
+    "Sets": {
+
+        "Set union": {
+            input: "3\n1 2 3\n3\n3 4 5",
+            output: "1 2 3 4 5",
+            tests: [
+                { input: "3\n1 2 3\n3\n3 4 5", expectedOutput: "1 2 3 4 5" }
+            ]
+        },
+
+        "Set intersection": {
+            input: "3\n1 2 3\n3\n2 3 4",
+            output: "2 3",
+            tests: [
+                { input: "3\n1 2 3\n3\n2 3 4", expectedOutput: "2 3" }
+            ]
+        },
+
+        "Set difference": {
+            input: "3\n1 2 3\n3\n2 3 4",
+            output: "1",
+            tests: [
+                { input: "3\n1 2 3\n3\n2 3 4", expectedOutput: "1" }
+            ]
+        }
+    },
+
+    "Queues": {
+
+        "Generate binary numbers": {
+            input: "5",
+            output: "1 10 11 100 101",
+            tests: [
+                { input: "5", expectedOutput: "1 10 11 100 101" },
+                { input: "3", expectedOutput: "1 10 11" }
+            ]
+        }
+    },
+
+    "SQL": {
+
+        "Create a table": {
+            input: "CREATE TABLE Student (id INT, name VARCHAR(50));",
+            output: "Table created successfully",
+            tests: []
+        },
+
+        "Insert records": {
+            input: "INSERT INTO Student VALUES (1, 'Asha');",
+            output: "Record inserted successfully",
+            tests: []
+        },
+
+        "Select records": {
+            input: "SELECT * FROM Student WHERE marks > 80;",
+            output: "Records matching the condition",
+            tests: []
+        },
+
+        "Use joins": {
+            input: "SELECT * FROM Student JOIN Department ON Student.dept_id = Department.id;",
+            output: "Matching student and department records",
+            tests: []
+        },
+
+        "Group records": {
+            input: "SELECT department, COUNT(*) FROM Student GROUP BY department;",
+            output: "Department-wise student count",
+            tests: []
+        }
+    },
+
+    "DBMS": {
+
+        "What is DBMS?": {
+            input: "Explain DBMS",
+            output: "DBMS is software used to store, manage and retrieve data.",
+            tests: []
+        },
+
+        "Database keys": {
+            input: "Student(id, name, department_id)",
+            output: "id can be a primary key; department_id can be a foreign key.",
+            tests: []
+        },
+
+        "Normalization": {
+            input: "Explain normalization",
+            output: "Normalization organizes database tables to reduce redundancy and improve data integrity.",
+            tests: []
+        },
+
+        "ER diagram": {
+            input: "Design a student management ER diagram",
+            output: "Student and Course entities connected through an Enrollment relationship.",
+            tests: []
+        },
+
+        "Transactions": {
+            input: "Explain ACID properties",
+            output: "Atomicity, Consistency, Isolation and Durability.",
+            tests: []
+        }
+    },
+
+    "Operating Systems": {
+
+        "Process and thread": {
+            input: "Differentiate process and thread",
+            output: "A process is an independent executing program; a thread is a unit of execution within a process.",
+            tests: []
+        },
+
+        "CPU scheduling": {
+            input: "Processes: P1=4, P2=3, P3=2 (FCFS)",
+            output: "Waiting times: P1=0, P2=4, P3=7",
+            tests: []
+        },
+
+        "Deadlock": {
+            input: "List the four deadlock conditions",
+            output: "Mutual exclusion, hold and wait, no preemption, circular wait.",
+            tests: []
+        },
+
+        "Memory management": {
+            input: "Explain paging",
+            output: "Paging divides memory into fixed-size pages and frames.",
+            tests: []
+        },
+
+        "Page replacement": {
+            input: "Explain FIFO page replacement",
+            output: "FIFO replaces the page that entered memory earliest.",
+            tests: []
+        }
+    },
+
+    "Computer Networks": {
+
+        "Network types": {
+            input: "LAN, MAN, WAN",
+            output: "LAN: Local Area Network\nMAN: Metropolitan Area Network\nWAN: Wide Area Network",
+            tests: []
+        },
+
+        "OSI model": {
+            input: "List the OSI layers",
+            output: "Physical, Data Link, Network, Transport, Session, Presentation, Application.",
+            tests: []
+        },
+
+        "IP addressing": {
+            input: "192.168.1.10/24",
+            output: "Network address: 192.168.1.0",
+            tests: []
+        },
+
+        "Network topologies": {
+            input: "Name common network topologies",
+            output: "Bus, Star, Ring, Mesh and Tree.",
+            tests: []
+        },
+
+        "Subnetting": {
+            input: "192.168.1.0/24",
+            output: "254 usable host addresses.",
+            tests: []
+        }
+    },
+
+    "HTML": {
+
+        "Create a webpage": {
+            input: "Create a basic HTML page",
+            output: "A webpage containing DOCTYPE, html, head, title and body elements.",
+            tests: []
+        },
+
+        "HTML headings": {
+            input: "Create headings from h1 to h6",
+            output: "Six headings displayed in descending sizes.",
+            tests: []
+        },
+
+        "Create a form": {
+            input: "Create a registration form",
+            output: "A form containing name, email, password and submit fields.",
+            tests: []
+        },
+
+        "Create a table": {
+            input: "Create a student table",
+            output: "An HTML table containing student details.",
+            tests: []
+        },
+
+        "Add images and links": {
+            input: "Add an image and hyperlink",
+            output: "A webpage displaying an image and a clickable link.",
+            tests: []
+        }
+    },
+
+    "CSS": {
+
+        "Change text styles": {
+            input: "Style a heading",
+            output: "A heading with the requested font, color and size.",
+            tests: []
+        },
+
+        "Create a navigation bar": {
+            input: "Create a horizontal navigation bar",
+            output: "A horizontal navigation bar with clickable links.",
+            tests: []
+        },
+
+        "CSS box model": {
+            input: "Demonstrate the CSS box model",
+            output: "An element showing content, padding, border and margin.",
+            tests: []
+        },
+
+        "Create a card": {
+            input: "Create a card using CSS",
+            output: "A styled card with content, spacing and border.",
+            tests: []
+        },
+
+        "Flexbox layout": {
+            input: "Create a Flexbox layout",
+            output: "A flexible layout with aligned child elements.",
+            tests: []
+        }
+    },
+
+    "JavaScript": {
+
+        "Display a message": {
+            input: "Display Hello World",
+            output: "Hello World",
+            tests: []
+        },
+
+        "Handle button click": {
+            input: "Click a button",
+            output: "A message appears after clicking the button.",
+            tests: []
+        },
+
+        "Validate a form": {
+            input: "Enter valid form details",
+            output: "Form validation succeeds when all fields are valid.",
+            tests: []
+        },
+
+        "DOM manipulation": {
+            input: "Change a heading using JavaScript",
+            output: "The heading displays the updated text.",
+            tests: []
+        },
+
+        "Create a calculator": {
+            input: "10 + 20",
+            output: "30",
+            tests: []
+        }
+    }
+
+};
+
+
+// ==================================================
+// 4. GET EXAMPLE FOR SELECTED QUESTION
+// ==================================================
+
+function getQuestionExample(title, selectedTopic) {
+
+    const topicExamples = exampleBank[selectedTopic] || {};
+
+    if (topicExamples[title]) {
+        return topicExamples[title];
+    }
+
+    return {
+        input: "See the question description.",
+        output: "Complete the task described in the question.",
+        tests: [],
+        note: "A dedicated execution test configuration is not yet available for this question."
+    };
+}
+
+
+// ==================================================
+// 5. GET QUESTIONS FOR SELECTED TOPIC
+// ==================================================
+
+const questions = questionBank[learning]?.[topic] || [];
+
+
+// ==================================================
+// 6. TOPIC PROGRESS STORAGE
+// ==================================================
+
+const progressKey =
+    "completed_" + learning + "_" + language + "_" + topic;
+
+localStorage.setItem(
+    "totalQuestions_" + progressKey,
+    questions.length
+);
+
+
+// ==================================================
+// 7. LOAD COMPLETED QUESTIONS
+// ==================================================
+
+let completedQuestions = [];
+
+try {
+
+    completedQuestions = JSON.parse(
+        localStorage.getItem(progressKey) || "[]"
+    );
+
+    if (!Array.isArray(completedQuestions)) {
+        completedQuestions = [];
+    }
+
+} catch (error) {
+
+    completedQuestions = [];
+
+}
+
+completedQuestions = [
+    ...new Set(
+        completedQuestions.filter(index =>
+            Number.isInteger(index) &&
+            index >= 0 &&
+            index < questions.length
+        )
+    )
+];
+
+localStorage.setItem(
+    progressKey,
+    JSON.stringify(completedQuestions)
+);
+
+
+// ==================================================
+// 8. FIND FIRST INCOMPLETE QUESTION
+// ==================================================
+
+let currentIndex = 0;
+
+while (
+    currentIndex < questions.length &&
+    completedQuestions.includes(currentIndex)
+) {
+    currentIndex++;
+}
+
+
+// ==================================================
+// 9. DISPLAY QUESTION
+// Test cases are NOT displayed on this page.
+// ==================================================
+
+function displayQuestion() {
+
+    document.getElementById("topicTitle").textContent =
+        topic + " Practice";
+
+    if (questions.length === 0) {
+
+        document.getElementById("questionCount").textContent =
+            "No questions";
+
+        document.getElementById("questionTitle").textContent =
+            "Questions coming soon";
+
+        document.getElementById("questionDescription").textContent =
+            "Questions for " + topic + " are not available.";
+
+        document.getElementById("startButton").style.display =
+            "none";
+
+        return;
+    }
+
+    const total = questions.length;
+
+    const percentage = Math.round(
+        (completedQuestions.length / total) * 100
+    );
+
+    document.getElementById("progressFill").style.width =
+        percentage + "%";
+
+    document.getElementById("progressPercent").textContent =
+        percentage + "% Completed";
+
+
+    // ALL QUESTIONS COMPLETED
+
+    if (currentIndex >= total) {
+
+        document.getElementById("questionCount").textContent =
+            "Completed " + total + " of " + total;
+
+        document.getElementById("difficulty").style.display =
+            "none";
+
+        document.getElementById("questionTitle").textContent =
+            "Congratulations!";
+
+        document.getElementById("questionDescription").textContent =
+            "You have completed all questions in " + topic + ".";
+
+        document.getElementById("startButton").style.display =
+            "none";
+
+        document.getElementById("completionMessage").textContent =
+            "Great job! Keep learning.";
+
+        return;
+    }
+
+
+    // DISPLAY CURRENT QUESTION
+
+    const q = questions[currentIndex];
+
+    document.getElementById("questionCount").textContent =
+        "Question " + (currentIndex + 1) + " of " + total;
+
+    document.getElementById("difficulty").style.display =
+        "inline-block";
+
+    document.getElementById("difficulty").textContent =
+        q[2];
+
+    document.getElementById("questionTitle").textContent =
+        q[0];
+
+    document.getElementById("questionDescription").textContent =
+        q[1];
+
+    document.getElementById("startButton").style.display =
+        "inline-block";
+
+    document.getElementById("startButton").textContent =
+        "Start Question";
+
+    document.getElementById("completionMessage").textContent = "";
+
+}
+
+
+// ==================================================
+// 10. START QUESTION
+// Save test cases for the Coding page.
+// ==================================================
+
+function startQuestion() {
+
+    if (currentIndex >= questions.length) {
+        return;
+    }
+
+    const q = questions[currentIndex];
+
+    const example = getQuestionExample(q[0], topic);
+
+    localStorage.setItem("selectedQuestion", q[0]);
+
+    localStorage.setItem("questionDescription", q[1]);
+
+    localStorage.setItem("selectedQuestionIndex", currentIndex);
+
+    localStorage.setItem("questionProgressKey", progressKey);
+
+    localStorage.setItem("totalQuestions", questions.length);
+
+
+    // Save original input and output.
+
+    localStorage.setItem("sampleInput", example.input);
+
+    localStorage.setItem("expectedOutput", example.output);
+
+
+    // Save question-specific test cases for coding.html.
+
+    localStorage.setItem(
+        "questionTestCases",
+        JSON.stringify(example.tests)
+    );
+
+
+    // Save whether this question has runnable test cases.
+
+    localStorage.setItem(
+        "hasExecutionTests",
+        example.tests.length > 0 ? "true" : "false"
+    );
+
+
+    // Save selected category and topic.
+
+    localStorage.setItem("learning", learning);
+
+    localStorage.setItem("language", language);
+
+    localStorage.setItem("selectedTopic", topic);
+
+
+    // Clear previous quiz status.
+
+    localStorage.removeItem("logicQuizCompleted");
+
+    window.location.href = "understanding.html";
+
+}
+
+
+// ==================================================
+// 11. GO BACK TO TOPICS
+// ==================================================
+
+function goBack() {
+
+    window.location.href = "topics.html";
+
+}
+
+
+// ==================================================
+// 12. LOAD PAGE
+// ==================================================
+
+if (!learning || !topic) {
+
+    document.getElementById("questionTitle").textContent =
+        "Please select a topic";
+
+    document.getElementById("questionDescription").textContent =
+        "Go to the dashboard and select a learning category and topic.";
+
+    document.getElementById("startButton").style.display =
+        "none";
+
+} else {
+
+    displayQuestion();
+
+}
+
+</script>
+
+</body>
+</html>
