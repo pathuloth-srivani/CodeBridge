@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Code Bridge - Dashboard</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h2>🌉 Code Bridge</h2>
+        <span>Learn • Practice • Improve</span>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+
+        <div class="dashboard-main">
+
+            <!-- WELCOME SECTION AT THE TOP -->
+            <div class="welcome">
+                <h1>Welcome to Code Bridge! 👋</h1>
+                <p>Your journey to becoming a better programmer starts here.</p>
+            </div>
+
+
+            <!-- SELECTION AND PROGRESS SIDE BY SIDE -->
+            <div class="dashboard-content">
+
+                <!-- LEFT SIDE: LEARNING SELECTION -->
+                <div class="dashboard-left">
+
+                    <div class="selection-card">
+
+                        <h2>What do you want to learn?</h2>
+
+                        <p class="description">
+                            Choose your learning path to get started.
+                        </p>
+
+                        <!-- Learning Categories -->
+                        <div class="options">
+
+                            <button type="button"
+                                onclick="selectLearning('DSA', this)">
+                                🧠 DSA
+                            </button>
+
+                            <button type="button"
+                                onclick="selectLearning('Java', this)">
+                                ☕ Java
+                            </button>
+
+                            <button type="button"
+                                onclick="selectLearning('Python', this)">
+                                🐍 Python
+                            </button>
+
+                            <button type="button"
+                                onclick="selectLearning('Other Concepts', this)">
+                                📚 Other Concepts
+                            </button>
+
+                        </div>
+
+
+                        <!-- Programming Language -->
+                        <div id="language-section">
+
+                            <h2>Select Programming Language</h2>
+
+                            <p class="description">
+                                Choose your preferred programming language.
+                            </p>
+
+                            <div class="languages">
+
+                                <button type="button"
+                                    onclick="selectLanguage('C', this)">C</button>
+
+                                <button type="button"
+                                    onclick="selectLanguage('C++', this)">C++</button>
+
+                                <button type="button"
+                                    onclick="selectLanguage('Java', this)">Java</button>
+
+                                <button type="button"
+                                    onclick="selectLanguage('Python', this)">Python</button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Continue Button -->
+                        <button type="button" class="continue-btn"
+                            onclick="continueLearning()">
+                            Continue →
+                        </button>
+
+                        <p id="message"></p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RIGHT SIDE: LEARNING PROGRESS -->
+                <div class="progress-section">
+
+                    <h2>My Learning Progress</h2>
+
+                    <!-- Performance Progress -->
+                    <div class="progress-card">
+
+                        <h3>Performance Progress</h3>
+
+                        <div class="progress-bar">
+                            <div id="performanceBar" class="progress-fill"></div>
+                        </div>
+
+                        <p id="performanceText">0%</p>
+
+                    </div>
+
+
+                    <!-- Questions Completed -->
+                    <div class="progress-card">
+
+                        <h3>Questions Completed</h3>
+
+                        <div class="progress-bar">
+                            <div id="completedBar" class="progress-fill"></div>
+                        </div>
+
+                        <p id="completedText">0%</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // Selected values
+        let selectedLearning = "";
+        let selectedLanguage = "";
+
+
+        // Select learning category
+        function selectLearning(value, button) {
+
+            selectedLearning = value;
+
+            document.querySelectorAll(".options button")
+                .forEach(btn => {
+                    btn.classList.remove("selected");
+                });
+
+            button.classList.add("selected");
+
+            const languageSection =
+                document.getElementById("language-section");
+
+
+            // Automatically select language for Java and Python
+            if (value === "Java" || value === "Python") {
+
+                selectedLanguage = value;
+
+                languageSection.style.display = "none";
+
+            } else {
+
+                selectedLanguage = "";
+
+                languageSection.style.display = "block";
+
+                document.querySelectorAll(".languages button")
+                    .forEach(btn => {
+                        btn.classList.remove("selected");
+                    });
+
+            }
+
+            document.getElementById("message").innerText = "";
+        }
+
+
+        // Select programming language
+        function selectLanguage(value, button) {
+
+            selectedLanguage = value;
+
+            document.querySelectorAll(".languages button")
+                .forEach(btn => {
+                    btn.classList.remove("selected");
+                });
+
+            button.classList.add("selected");
+
+            document.getElementById("message").innerText = "";
+        }
+
+
+        // Save selection and open topics page
+        function continueLearning() {
+
+            if (selectedLearning === "") {
+
+                document.getElementById("message").innerText =
+                    "Please select what you want to learn.";
+
+                return;
+            }
+
+            if (selectedLanguage === "") {
+
+                document.getElementById("message").innerText =
+                    "Please select a programming language.";
+
+                return;
+            }
+
+
+            // Save selected values in browser
+            localStorage.setItem("learning", selectedLearning);
+
+            localStorage.setItem("language", selectedLanguage);
+
+
+            // Open topics page
+            window.location.href = "topics.html";
+
+        }
+
+
+        // Display Learning Progress
+        function displayProgress() {
+
+            const performance = Number(
+                localStorage.getItem("performanceProgress") || 0
+            );
+
+            const completed = Number(
+                localStorage.getItem("questionsCompletedProgress") || 0
+            );
+
+
+            document.getElementById("performanceBar").style.width =
+                performance + "%";
+
+            document.getElementById("performanceText").innerText =
+                performance + "%";
+
+
+            document.getElementById("completedBar").style.width =
+                completed + "%";
+
+            document.getElementById("completedText").innerText =
+                completed + "%";
+
+        }
+
+
+        // Load progress when dashboard opens
+        displayProgress();
+
+    </script>
+
+</body>
+</html>
