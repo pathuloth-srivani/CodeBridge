@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="register.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Code Bridge - Registration</title>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <h1>Code Bridge</h1>
+
+        <p>Create your account and start learning programming!</p>
+
+        <form id="registerForm">
+
+            <input type="text"
+                   id="name"
+                   placeholder="Enter your full name"
+                   required>
+
+            <input type="email"
+                   id="email"
+                   placeholder="Enter your email"
+                   required>
+
+            <input type="password"
+                   id="password"
+                   placeholder="Create password"
+                   minlength="6"
+                   required>
+
+            <input type="password"
+                   id="confirmPassword"
+                   placeholder="Confirm password"
+                   minlength="6"
+                   required>
+
+            <button type="submit" id="registerButton">
+                Create Account
+            </button>
+
+        </form>
+
+        <p id="message"></p>
+
+        <p>Already have an account?
+            <a href="login.html">Login</a>
+        </p>
+
+    </div>
+
+    <script>
+
+        document.getElementById("registerForm")
+            .addEventListener("submit", async function(event) {
+
+                event.preventDefault();
+
+                const name = document.getElementById("name").value.trim();
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+
+                const message = document.getElementById("message");
+                const button = document.getElementById("registerButton");
+
+                message.textContent = "";
+
+                if (password !== confirmPassword) {
+                    message.textContent = "Passwords do not match!";
+                    return;
+                }
+
+                button.disabled = true;
+                button.textContent = "Creating Account...";
+
+                try {
+
+                    const response = await fetch("http://localhost:3000/register", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            email: email,
+                            password: password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        message.textContent = data.message || "Registration failed!";
+                        return;
+                    }
+
+                    message.textContent = "Account created successfully! Please login.";
+
+                    document.getElementById("registerForm").reset();
+
+                    setTimeout(function() {
+                        window.location.href = "login.html";
+                    }, 1500);
+
+                } catch (error) {
+
+                    message.textContent = "Cannot connect to server. Please start your backend.";
+
+                    console.error("Registration error:", error);
+
+                } finally {
+
+                    button.disabled = false;
+                    button.textContent = "Create Account";
+
+                }
+
+            });
+
+    </script>
+
+</body>
+</html>
