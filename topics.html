@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Code Bridge - Topics</title>
+
+    <link rel="stylesheet" href="topics.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h2>🌉 Code Bridge</h2>
+        <span>Learn • Practice • Improve</span>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+
+        <div class="welcome">
+            <h1 id="welcome-title">Choose Your Topic 📚</h1>
+            <p id="welcome-description">
+                Select a topic to start your learning journey.
+            </p>
+        </div>
+
+        <!-- Topics Card -->
+        <div class="topics-container">
+
+            <h2>Available Topics</h2>
+
+            <div class="topics-grid" id="topics-list">
+                <!-- Topics will appear here -->
+            </div>
+
+            <p id="message"></p>
+
+            <button class="back-btn"
+                onclick="window.location.href='dashboard.html'">
+                ← Back to Dashboard
+            </button>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // Get selected learning category and language
+        const learning = localStorage.getItem("learning");
+        const language = localStorage.getItem("language");
+
+        // Topics based on selection
+        const topicsData = {
+
+            "DSA": [
+                "Arrays",
+                "Strings",
+                "Linked Lists",
+                "Stacks",
+                "Queues",
+                "Trees",
+                "Searching",
+                "Sorting",
+                "Recursion",
+                "Hashing"
+            ],
+
+            "Java": [
+                "Variables",
+                "Data Types",
+                "Operators",
+                "Conditional Statements",
+                "Loops",
+                "Arrays",
+                "Strings",
+                "Methods",
+                "Object Oriented Programming"
+            ],
+
+            "Python": [
+                "Variables",
+                "Data Types",
+                "Operators",
+                "Conditional Statements",
+                "Loops",
+                "Lists",
+                "Tuples",
+                "Dictionaries",
+                "Functions",
+                "Object Oriented Programming"
+            ],
+
+            "Other Concepts": [
+                "DBMS",
+                "Operating Systems",
+                "Computer Networks",
+                "SQL",
+                "HTML",
+                "CSS",
+                "JavaScript"
+            ]
+
+        };
+
+        // Display selected learning information
+        document.getElementById("welcome-title").innerText =
+            learning + " Topics 📚";
+
+        document.getElementById("welcome-description").innerText =
+            "Selected Language: " + language +
+            " | Choose a topic to start learning.";
+
+        // Get topics
+        const topics = topicsData[learning] || [];
+
+        const topicsList = document.getElementById("topics-list");
+
+        // Display topic cards
+        topics.forEach((topic, index) => {
+
+            const card = document.createElement("div");
+
+            card.className = "topic-card";
+
+            card.innerHTML = `
+                <div class="topic-number">${index + 1}</div>
+                <h3>${topic}</h3>
+                <p>Learn and practise this topic</p>
+                <button onclick="selectTopic('${topic}')">
+                    Start Learning →
+                </button>
+            `;
+
+            topicsList.appendChild(card);
+
+        });
+
+        // Select a topic
+        function selectTopic(topic) {
+
+            localStorage.setItem("selectedTopic", topic);
+
+            window.location.href = "questions.html";
+
+        }
+
+        // Handle missing selection
+        if (!learning || !language) {
+
+            document.getElementById("message").innerText =
+                "Please select your learning path first.";
+
+            topicsList.innerHTML = "";
+
+        }
+
+    </script>
+
+</body>
+</html>
