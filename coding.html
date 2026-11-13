@@ -1,0 +1,1317 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Bridge - Coding</title>
+    <link rel="stylesheet" href="coding.css">
+
+    <style>
+        .test-results {
+            margin-top: 20px;
+        }
+
+        .test-result-card {
+            background: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 18px;
+            margin: 15px 0;
+        }
+
+        .test-result-card h3 {
+            margin-bottom: 12px;
+        }
+
+        .test-result-card pre {
+            background: #f4f6f8;
+            padding: 12px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            margin: 8px 0 14px;
+        }
+
+        .test-status {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .test-status.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .test-status.wrong {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .test-status.error {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .result-summary {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        #testResults {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Code Bridge</h1>
+    <p>Convert your logic into code</p>
+</header>
+
+<main class="container">
+
+    <!-- PROGRESS -->
+    <div class="progress">
+        <p>Step 4: Write the Code</p>
+
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- QUESTION DETAILS -->
+    <section class="question-box">
+
+        <h2 id="questionTitle">Loading question...</h2>
+
+        <p id="questionDescription"></p>
+
+        <h3>Sample Input</h3>
+        <pre id="sampleInput"></pre>
+
+        <h3>Expected Output</h3>
+        <pre id="expectedOutput"></pre>
+
+    </section>
+
+    <!-- CODE EDITOR -->
+    <section class="editor-box">
+
+        <h2>Write Your Code</h2>
+
+        <label for="language">Select Language:</label>
+
+        <select id="language">
+            <option value="java">Java</option>
+            <option value="python">Python</option>
+            <option value="c">C</option>
+            <option value="cpp">C++</option>
+        </select>
+
+        <textarea
+            id="codeEditor"
+            placeholder="Write your code here..."
+        ></textarea>
+
+        <div class="buttons">
+
+            <button type="button" id="runButton">
+                Run Code
+            </button>
+
+            <button type="button" class="clear-btn" id="clearButton">
+                Clear
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- EXECUTION RESULTS -->
+    <section class="output-box">
+
+        <h2>Execution Results</h2>
+
+        <pre id="output">Your output will appear here.</pre>
+
+        <!-- TEST RESULTS APPEAR ONLY AFTER RUN CODE -->
+        <div id="testResults" class="test-results"></div>
+
+        <div id="technicalDetailsBox" class="technical-details" hidden>
+
+            <details>
+                <summary>View technical details</summary>
+                <pre id="technicalDetails"></pre>
+            </details>
+
+        </div>
+
+    </section>
+
+    <!-- GUIDANCE -->
+    <section class="guidance-box" id="guidanceBox" hidden>
+
+        <h2>Guidance</h2>
+
+        <div id="guidanceMessage"></div>
+
+    </section>
+
+    <!-- SUCCESS -->
+    <section class="success-box" id="successBox" hidden>
+
+        <h2>Congratulations!</h2>
+
+        <p>You have successfully passed all test cases.</p>
+
+        <p id="progressMessage"></p>
+
+        <button type="button" id="nextQuestionButton">
+            Next Question
+        </button>
+
+    </section>
+
+</main>
+
+<script src="question-data.js"></script>
+
+<script>
+
+/* =======================================
+   1. GET QUESTION DETAILS
+======================================= */
+
+const title =
+    localStorage.getItem("selectedQuestion") ||
+    "Find the Largest Element";
+
+const description =
+    localStorage.getItem("questionDescription") ||
+    localStorage.getItem("selectedQuestionDescription") ||
+    "";
+
+const savedLanguage =
+    (localStorage.getItem("language") || "java").toLowerCase();
+
+document.getElementById("questionTitle").textContent = title;
+
+document.getElementById("questionDescription").textContent =
+    description;
+
+
+/* =======================================
+   2. GET QUESTION DATA
+======================================= */
+
+function findCurrentQuestionData() {
+
+    if (typeof window.getQuestionData !== "function") {
+        return null;
+    }
+
+    let data = window.getQuestionData(title);
+
+    if (data) {
+        return data;
+    }
+
+    const t = title.toLowerCase();
+
+    if (
+        t.includes("second largest") ||
+        t.includes("second-largest") ||
+        t.includes("second maximum")
+    ) {
+        return window.getQuestionData("find second largest");
+    }
+
+    if (t.includes("largest")) {
+        return window.getQuestionData("find largest element");
+    }
+
+    if (t.includes("smallest")) {
+        return window.getQuestionData("find smallest element");
+    }
+
+    if (t.includes("reverse") && t.includes("array")) {
+        return window.getQuestionData("reverse an array");
+    }
+
+    if (t.includes("reverse") && t.includes("string")) {
+
+        const topic =
+            (localStorage.getItem("selectedTopic") || "").toLowerCase();
+
+        if (topic.includes("recursion")) {
+            return window.getQuestionData("reverse a string using recursion");
+        }
+
+        return window.getQuestionData("reverse a string");
+    }
+
+    if (t.includes("palindrome")) {
+        return window.getQuestionData("check palindrome");
+    }
+
+    if (t.includes("vowel")) {
+        return window.getQuestionData("count vowels");
+    }
+
+    if (t.includes("zero") && (t.includes("move") || t.includes("end"))) {
+        return window.getQuestionData("move zeros to end");
+    }
+
+    return null;
+}
+
+const problem = findCurrentQuestionData();
+
+
+/* =======================================
+   3. GET ELEMENTS
+======================================= */
+
+const sampleInputElement =
+    document.getElementById("sampleInput");
+
+const expectedOutputElement =
+    document.getElementById("expectedOutput");
+
+const languageSelect =
+    document.getElementById("language");
+
+const codeEditor =
+    document.getElementById("codeEditor");
+
+const output =
+    document.getElementById("output");
+
+const runButton =
+    document.getElementById("runButton");
+
+const guidanceBox =
+    document.getElementById("guidanceBox");
+
+const guidanceMessage =
+    document.getElementById("guidanceMessage");
+
+const successBox =
+    document.getElementById("successBox");
+
+const technicalDetailsBox =
+    document.getElementById("technicalDetailsBox");
+
+const technicalDetails =
+    document.getElementById("technicalDetails");
+
+const testResults =
+    document.getElementById("testResults");
+
+
+/* =======================================
+   4. GET ONLY TWO QUESTION TEST CASES
+======================================= */
+
+let questionTests = [];
+
+try {
+
+    const savedTests = JSON.parse(
+        localStorage.getItem("questionTestCases") || "null"
+    );
+
+    if (Array.isArray(savedTests) && savedTests.length > 0) {
+
+        questionTests = savedTests.slice(0, 2);
+
+    }
+
+} catch (error) {
+
+    questionTests = [];
+
+}
+
+if (
+    questionTests.length === 0 &&
+    problem &&
+    Array.isArray(problem.tests)
+) {
+
+    questionTests = problem.tests.slice(0, 2);
+
+}
+
+
+/* =======================================
+   5. VALIDATE QUESTION DATA
+======================================= */
+
+function isValidQuestionData() {
+
+    return Boolean(
+        problem &&
+        problem.input !== undefined &&
+        problem.output !== undefined &&
+        questionTests.length === 2 &&
+        questionTests.every(test =>
+            test.input !== undefined &&
+            test.expectedOutput !== undefined
+        )
+    );
+
+}
+
+const questionAvailable = isValidQuestionData();
+
+
+/* =======================================
+   6. DISPLAY QUESTION DETAILS ONLY
+   TEST CASES WILL APPEAR AFTER RUN CODE
+======================================= */
+
+if (questionAvailable) {
+
+    sampleInputElement.textContent = problem.input;
+
+    expectedOutputElement.textContent = problem.output;
+
+} else {
+
+    sampleInputElement.textContent =
+        "Question data not configured.";
+
+    expectedOutputElement.textContent =
+        "Question data not configured.";
+
+}
+
+
+/* =======================================
+   7. STARTER CODE
+======================================= */
+
+const starterCode = {
+
+    java:
+`import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        // Write your logic here
+
+        sc.close();
+    }
+}`,
+
+    python:
+`# Read input using input()
+
+# Write your logic here
+`,
+
+    c:
+`#include <stdio.h>
+
+int main() {
+
+    // Write your logic here
+
+    return 0;
+}`,
+
+    cpp:
+`#include <iostream>
+using namespace std;
+
+int main() {
+
+    // Write your logic here
+
+    return 0;
+}`
+
+};
+
+
+/* =======================================
+   8. SET SELECTED LANGUAGE
+======================================= */
+
+languageSelect.value =
+    starterCode[savedLanguage] ? savedLanguage : "java";
+
+codeEditor.value = starterCode[languageSelect.value];
+
+
+/* =======================================
+   9. CHANGE LANGUAGE
+======================================= */
+
+languageSelect.addEventListener("change", function() {
+
+    codeEditor.value = starterCode[this.value];
+
+    localStorage.setItem("language", this.value);
+
+    localStorage.removeItem("samplePassed");
+
+    successBox.hidden = true;
+    guidanceBox.hidden = true;
+
+    testResults.innerHTML = "";
+
+    clearTechnicalDetails();
+
+    output.textContent =
+        "Write your code and click Run Code.";
+
+});
+
+
+/* =======================================
+   10. CLEAR CODE
+======================================= */
+
+function clearCode() {
+
+    codeEditor.value = starterCode[languageSelect.value];
+
+    output.textContent = "Your output will appear here.";
+
+    testResults.innerHTML = "";
+
+    guidanceBox.hidden = true;
+    successBox.hidden = true;
+
+    clearTechnicalDetails();
+
+    localStorage.removeItem("samplePassed");
+
+}
+
+document.getElementById("clearButton")
+    .addEventListener("click", clearCode);
+
+
+/* =======================================
+   11. NORMALIZE OUTPUT
+======================================= */
+
+function normalizeOutput(value) {
+
+    return String(value == null ? "" : value)
+        .replace(/[\[\],]/g, " ")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .join(" ");
+
+}
+
+
+/* =======================================
+   12. FRIENDLY COMPILATION MESSAGES
+======================================= */
+
+function getFriendlyCompileMessage(errorText) {
+
+    const text = String(errorText || "");
+
+    if (text.includes("cannot find symbol")) {
+
+        return "Your code uses a variable or method that Java cannot find. Check its spelling and make sure it has been declared.";
+
+    }
+
+    if (text.includes("';' expected")) {
+
+        return "A semicolon (;) may be missing at the end of a Java statement.";
+
+    }
+
+    if (text.includes("reached end of file while parsing")) {
+
+        return "A closing curly bracket (}) may be missing.";
+
+    }
+
+    if (text.includes("incompatible types")) {
+
+        return "A value is being used with an incompatible data type.";
+
+    }
+
+    return "The compiler found a problem in your code. Check variable declarations, spelling, data types, semicolons, and brackets.";
+
+}
+
+
+function showTechnicalDetails(message) {
+
+    technicalDetails.textContent =
+        message || "No additional technical details were provided.";
+
+    technicalDetailsBox.hidden = !message;
+
+}
+
+
+function clearTechnicalDetails() {
+
+    technicalDetails.textContent = "";
+
+    technicalDetailsBox.hidden = true;
+
+}
+
+
+/* =======================================
+   13. SHOW TOPIC EXPLANATION
+======================================= */
+
+function showTopicExplanation() {
+
+    if (!problem) return;
+
+    guidanceMessage.replaceChildren();
+
+    const heading = document.createElement("h3");
+
+    heading.textContent = problem.concept || "Related Concept";
+
+    const explanation = document.createElement("p");
+
+    explanation.textContent =
+        problem.guidance || problem.explanation || "";
+
+    const exampleHeading = document.createElement("h3");
+
+    exampleHeading.textContent = "Example";
+
+    const example = document.createElement("pre");
+
+    example.textContent =
+        problem.input + "\n\nExpected Output:\n" + problem.output;
+
+    const advice = document.createElement("p");
+
+    advice.textContent =
+        "Now try writing your code again using this concept.";
+
+    const button = document.createElement("button");
+
+    button.textContent = "Try Again";
+
+    button.addEventListener("click", tryAgain);
+
+    guidanceMessage.append(
+        heading,
+        explanation,
+        exampleHeading,
+        example,
+        advice,
+        button
+    );
+
+    guidanceBox.hidden = false;
+
+}
+
+
+/* =======================================
+   14. TRY AGAIN
+======================================= */
+
+function tryAgain() {
+
+    guidanceBox.hidden = true;
+
+    successBox.hidden = true;
+
+    output.textContent =
+        "Correct your code and click Run Code to test again.";
+
+}
+
+
+/* =======================================
+   15. TRACK REPEATED MISTAKES
+======================================= */
+
+function getProblemKey() {
+
+    return String(title)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+
+}
+
+const problemKey = getProblemKey();
+
+
+function recordMistake(signature, message) {
+
+    const mistakeKey =
+        "mistakes_" + problemKey + "_" + signature;
+
+    let count = Number(
+        localStorage.getItem(mistakeKey) || 0
+    );
+
+    count++;
+
+    localStorage.setItem(mistakeKey, count);
+
+    guidanceBox.hidden = false;
+
+    guidanceMessage.replaceChildren();
+
+    const hint = document.createElement("p");
+
+    hint.textContent = message;
+
+    guidanceMessage.appendChild(hint);
+
+    if (count >= 2) {
+
+        const question = document.createElement("h3");
+
+        question.textContent =
+            "You have made the same mistake more than once. Would you like to understand this concept: " +
+            (problem.concept || "this topic") + "?";
+
+        const yesButton = document.createElement("button");
+
+        yesButton.textContent = "Yes, explain the concept";
+
+        yesButton.addEventListener(
+            "click",
+            showTopicExplanation
+        );
+
+        const noButton = document.createElement("button");
+
+        noButton.textContent = "No, I want to try again";
+
+        noButton.addEventListener("click", tryAgain);
+
+        guidanceMessage.append(
+            question,
+            yesButton,
+            noButton
+        );
+
+    } else {
+
+        const suggestion = document.createElement("p");
+
+        suggestion.textContent =
+            "Hint: Review " +
+            (problem.concept || "the problem logic") +
+            ". Correct your code and try again.";
+
+        guidanceMessage.appendChild(suggestion);
+
+    }
+
+}
+
+
+/* =======================================
+   16. DISPLAY INDIVIDUAL TEST RESULTS
+======================================= */
+
+function displayTestResult(index, testCase, result) {
+
+    const card = document.createElement("div");
+
+    card.className = "test-result-card";
+
+    const heading = document.createElement("h3");
+
+    heading.textContent = "Test Case " + (index + 1);
+
+    const status = document.createElement("span");
+
+    status.className = "test-status";
+
+    const inputHeading = document.createElement("b");
+    inputHeading.textContent = "Input:";
+
+    const inputValue = document.createElement("pre");
+    inputValue.textContent = testCase.input;
+
+    const expectedHeading = document.createElement("b");
+    expectedHeading.textContent = "Expected Output:";
+
+    const expectedValue = document.createElement("pre");
+    expectedValue.textContent = testCase.expectedOutput;
+
+    const actualHeading = document.createElement("b");
+    actualHeading.textContent = "Your Output:";
+
+    const actualValue = document.createElement("pre");
+
+    let actualOutput = "";
+    let isCorrect = false;
+    let errorMessage = "";
+
+    if (!result) {
+
+        errorMessage = "No result received from the execution server.";
+
+    } else {
+
+        const statusId = Number(result.statusId);
+
+        actualOutput =
+            result.output ||
+            result.stdout ||
+            "";
+
+        if (statusId === 6) {
+
+            errorMessage =
+                "Compilation Error: " +
+                getFriendlyCompileMessage(
+                    result.compileError || result.error || result.message
+                );
+
+        } else if (statusId !== 3) {
+
+            errorMessage =
+                result.error ||
+                result.message ||
+                result.status ||
+                "Program execution failed.";
+
+        } else {
+
+            isCorrect =
+                normalizeOutput(actualOutput) ===
+                normalizeOutput(testCase.expectedOutput);
+
+        }
+
+    }
+
+    actualValue.textContent =
+        actualOutput.trim() || "No output";
+
+    const errorElement = document.createElement("p");
+
+    if (errorMessage) {
+
+        status.textContent = "ERROR";
+        status.classList.add("error");
+
+        errorElement.textContent = errorMessage;
+
+    } else if (isCorrect) {
+
+        status.textContent = "CORRECT";
+        status.classList.add("correct");
+
+    } else {
+
+        status.textContent = "WRONG";
+        status.classList.add("wrong");
+
+    }
+
+    card.append(
+        heading,
+        status,
+        inputHeading,
+        inputValue,
+        expectedHeading,
+        expectedValue,
+        actualHeading,
+        actualValue
+    );
+
+    if (errorMessage) {
+        card.appendChild(errorElement);
+    }
+
+    testResults.appendChild(card);
+
+    return {
+        passed: isCorrect,
+        error: errorMessage
+    };
+
+}
+
+
+/* =======================================
+   17. PROGRESS CALCULATION
+======================================= */
+
+function calculateAndSaveProgress() {
+
+    const progressKey =
+        localStorage.getItem("questionProgressKey");
+
+    if (!progressKey) return;
+
+    const performanceKey =
+        "questionPerformance_" + progressKey;
+
+    const completed = JSON.parse(
+        localStorage.getItem(progressKey) || "[]"
+    );
+
+    const performanceData = JSON.parse(
+        localStorage.getItem(performanceKey) || "{}"
+    );
+
+    let totalScore = 0;
+
+    completed.forEach(function(index) {
+
+        totalScore += Number(
+            performanceData[index] || 100
+        );
+
+    });
+
+    const performanceProgress = completed.length > 0
+        ? Math.round(totalScore / completed.length)
+        : 0;
+
+    const totalQuestions = Number(
+        localStorage.getItem("totalQuestions")
+    ) || 10;
+
+    const questionsCompleted = Math.min(
+        100,
+        Math.round(
+            (completed.length / totalQuestions) * 100
+        )
+    );
+
+    localStorage.setItem(
+        "performanceProgress",
+        performanceProgress
+    );
+
+    localStorage.setItem(
+        "questionsCompletedProgress",
+        questionsCompleted
+    );
+
+}
+
+
+/* =======================================
+   18. RUN CODE - ASYNC FUNCTION
+======================================= */
+
+async function runCode() {
+
+    const code = codeEditor.value.trim();
+
+    const selectedLanguage = languageSelect.value;
+
+    guidanceBox.hidden = true;
+
+    successBox.hidden = true;
+
+    testResults.innerHTML = "";
+
+    clearTechnicalDetails();
+
+    localStorage.removeItem("samplePassed");
+
+    if (!questionAvailable) {
+
+        output.textContent =
+            "Exactly two valid test cases are required for this question: " +
+            title +
+            "\n\nPlease add the correct question data to question-data.js.";
+
+        return;
+
+    }
+
+    if (!code) {
+
+        output.textContent =
+            "Please write your code first.";
+
+        return;
+
+    }
+
+    runButton.disabled = true;
+
+    runButton.textContent = "Running...";
+
+    output.textContent =
+        "Running your code against 2 test cases...";
+
+    try {
+
+        const response = await fetch(
+            "https://codebridge-7fy0.onrender.com/run",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    code: code,
+
+                    language: selectedLanguage,
+
+                    testCases: questionTests.map(test => ({
+                        input: test.input,
+                        expectedOutput: test.expectedOutput
+                    }))
+
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error || "Execution failed."
+            );
+
+        }
+
+        if (
+            !Array.isArray(data.results) ||
+            data.results.length === 0
+        ) {
+
+            throw new Error(
+                "No test results received. Check backend/server.js."
+            );
+
+        }
+
+        let passedCount = 0;
+
+        let errorCount = 0;
+
+        let failedTests = [];
+
+        let rawTechnicalError = "";
+
+        let mistakeType = "wronganswer";
+
+        // Display exactly two test cases after execution.
+        for (let i = 0; i < questionTests.length; i++) {
+
+            const testCase = questionTests[i];
+
+            const result = data.results[i];
+
+            const testResult =
+                displayTestResult(i, testCase, result);
+
+            if (testResult.passed) {
+
+                passedCount++;
+
+            } else {
+
+                failedTests.push("test_" + i);
+
+                if (testResult.error) {
+
+                    errorCount++;
+
+                    rawTechnicalError = testResult.error;
+
+                    if (testResult.error.includes("Compilation Error")) {
+
+                        mistakeType = "compilation";
+
+                    } else {
+
+                        mistakeType = "execution";
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        const allPassed =
+            passedCount === 2 &&
+            data.results.length === 2;
+
+        // Display summary.
+        const summary = document.createElement("p");
+
+        summary.className = "result-summary";
+
+        summary.textContent =
+            passedCount + " out of 2 test cases passed.";
+
+        testResults.appendChild(summary);
+
+        if (allPassed) {
+
+            output.textContent =
+                "SUCCESS! Both test cases passed.";
+
+            successBox.hidden = false;
+
+            localStorage.setItem("samplePassed", "true");
+
+            // Clear old mistakes after success.
+            Object.keys(localStorage).forEach(key => {
+
+                if (
+                    key.startsWith(
+                        "mistakes_" + problemKey + "_"
+                    )
+                ) {
+
+                    localStorage.removeItem(key);
+
+                }
+
+            });
+
+        } else {
+
+            output.textContent =
+                "Some test cases failed. Check the individual results below and correct your code.";
+
+            if (mistakeType === "compilation") {
+
+                showTechnicalDetails(rawTechnicalError);
+
+                recordMistake(
+                    "compilation_" +
+                    normalizeOutput(rawTechnicalError).slice(0, 100),
+
+                    "Your code has a compilation problem. " +
+                    rawTechnicalError
+                );
+
+            } else if (mistakeType === "execution") {
+
+                showTechnicalDetails(rawTechnicalError);
+
+                recordMistake(
+                    "execution_" +
+                    normalizeOutput(rawTechnicalError).slice(0, 100),
+
+                    "Your program stopped while running. Review your input handling, array positions, and variable values."
+                );
+
+            } else {
+
+                recordMistake(
+                    "wronganswer_" + failedTests.join("_"),
+
+                    "Some test cases have incorrect outputs. Compare your output with the expected output and review the concept: " +
+                    (problem.concept || "problem logic") + "."
+                );
+
+            }
+
+        }
+
+        // Track attempts and performance if question progress exists.
+        const progressKey =
+            localStorage.getItem("questionProgressKey");
+
+        const questionIndex = Number(
+            localStorage.getItem("selectedQuestionIndex")
+        );
+
+        if (
+            progressKey &&
+            Number.isInteger(questionIndex) &&
+            questionIndex >= 0
+        ) {
+
+            const attemptsKey =
+                "questionAttempts_" +
+                progressKey + "_" +
+                questionIndex;
+
+            let attempts = Number(
+                localStorage.getItem(attemptsKey) || 0
+            );
+
+            attempts++;
+
+            localStorage.setItem(attemptsKey, attempts);
+
+            let performanceScore;
+
+            if (attempts === 1) {
+                performanceScore = 100;
+            } else if (attempts === 2) {
+                performanceScore = 90;
+            } else if (attempts === 3) {
+                performanceScore = 80;
+            } else if (attempts === 4) {
+                performanceScore = 70;
+            } else {
+                performanceScore = 60;
+            }
+
+            const performanceKey =
+                "questionPerformance_" + progressKey;
+
+            let performanceData = JSON.parse(
+                localStorage.getItem(performanceKey) || "{}"
+            );
+
+            performanceData[questionIndex] = performanceScore;
+
+            localStorage.setItem(
+                performanceKey,
+                JSON.stringify(performanceData)
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        output.textContent =
+            "Connection Problem\n\n" +
+            "Code Bridge could not connect to the code execution server.\n\n" +
+            "Check that the backend is running. Open the backend folder in the terminal and run: npm start\n\n" +
+            "Technical message: " + error.message;
+
+    }
+
+    finally {
+
+        runButton.disabled = false;
+
+        runButton.textContent = "Run Code";
+
+    }
+
+}
+
+
+/* =======================================
+   19. CONNECT RUN CODE BUTTON
+======================================= */
+
+runButton.addEventListener("click", runCode);
+
+
+/* =======================================
+   20. COMPLETE QUESTION
+======================================= */
+
+function completeQuestion() {
+
+    if (
+        localStorage.getItem("samplePassed") !== "true"
+    ) {
+
+        alert(
+            "Please pass both test cases before continuing."
+        );
+
+        return;
+
+    }
+
+    const progressKey =
+        localStorage.getItem("questionProgressKey");
+
+    const index = Number(
+        localStorage.getItem("selectedQuestionIndex")
+    );
+
+    if (
+        !progressKey ||
+        !Number.isInteger(index) ||
+        index < 0
+    ) {
+
+        alert(
+            "Question progress information is missing. Please start this question again."
+        );
+
+        return;
+
+    }
+
+    let completed = [];
+
+    try {
+
+        completed = JSON.parse(
+            localStorage.getItem(progressKey) || "[]"
+        );
+
+        if (!Array.isArray(completed)) {
+            completed = [];
+        }
+
+    } catch {
+
+        completed = [];
+
+    }
+
+    if (!completed.includes(index)) {
+        completed.push(index);
+    }
+
+    localStorage.setItem(
+        progressKey,
+        JSON.stringify(completed)
+    );
+
+    calculateAndSaveProgress();
+
+    localStorage.removeItem("samplePassed");
+
+    localStorage.removeItem("logicQuizCompleted");
+
+    window.location.href = "questions.html";
+
+}
+
+
+/* =======================================
+   21. NEXT QUESTION BUTTON
+======================================= */
+
+document.getElementById("nextQuestionButton")
+    .addEventListener("click", completeQuestion);
+
+
+</script>
+
+</body>
+</html>
