@@ -989,7 +989,18 @@ async function runCode() {
             }
         );
 
-        const data = await response.json();
+        const responseText = await response.text();
+
+let data;
+
+try {
+    data = JSON.parse(responseText);
+} catch (error) {
+    throw new Error(
+        "Server did not return JSON. Response: " +
+        responseText.substring(0, 300)
+    );
+}
 
         if (!response.ok) {
 
